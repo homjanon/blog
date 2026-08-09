@@ -237,6 +237,13 @@ def main():
         return
     files = sorted([f.name for f in POSTS_DIR.iterdir()
                     if f.suffix.lower() in ('.docx', '.md', '.markdown')])
+
+    # 清理：重建 posts_html/（删除不再存在的文章页，保证删除文章后不残留）
+    import shutil
+    if HTML_DIR.is_dir():
+        shutil.rmtree(HTML_DIR)
+    HTML_DIR.mkdir()
+
     if not files:
         print("posts/ 文件夹为空，没有文章可构建")
         build_index([])
