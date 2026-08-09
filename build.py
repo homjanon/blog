@@ -138,8 +138,9 @@ def build_article(filename):
     elif path.suffix.lower() in ('.md', '.markdown'):
         html_body = parse_md(path)
         title = filename[:filename.rfind('.')]
-        # 尝试从 md 提取 # 标题
-        m = re.match(r'#\s+(.+)', path.read_text(encoding='utf-8'))
+        # 尝试从 md 提取 # 标题（跳过开头的 HTML 注释，如 <!-- category: xxx -->）
+        text = path.read_text(encoding='utf-8')
+        m = re.search(r'^#\s+(.+)$', text, re.M)
         if m:
             title = m.group(1).strip()
     else:
