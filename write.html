@@ -43,6 +43,21 @@ body{background:var(--bg);color:var(--ink);font-family:-apple-system,"PingFang S
 .pwd{width:180px}
 .msg{font-size:13px;margin-left:8px}
 .msg.ok{color:#16a34a}.msg.err{color:#dc2626}
+.manage{margin-top:28px;border-top:1px solid var(--line);padding-top:20px}
+.manage-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.manage-title{font-size:14px;font-weight:600}
+.manage-list{display:flex;flex-direction:column;gap:8px}
+.manage-item{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.manage-item .mi-date{font-size:12px;color:var(--sub);font-family:Consolas,monospace;min-width:85px}
+.manage-item .mi-title{flex:1;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.manage-item .mi-cat{font-size:11px;border-radius:999px;padding:2px 10px}
+.manage-item .mi-cat.inv{background:#e6f1fb;color:#185fa5}
+.manage-item .mi-cat.life{background:#eaf3de;color:#3b6d11}
+.btn-del{border:1px solid #fca5a5;background:#fef2f2;color:#dc2626;border-radius:8px;padding:4px 12px;font-size:12px;cursor:pointer;transition:all .15s}
+.btn-del:hover{background:#dc2626;color:#fff}
+.manage-empty{color:var(--sub);font-size:13px;text-align:center;padding:20px 0}
+.manage-pwd-row{margin-top:12px;display:flex;gap:10px;align-items:center}
+.manage-pwd-row .pwd{width:220px}
 .foot{text-align:center;color:var(--sub);font-size:12px;margin-top:40px;padding-top:20px;border-top:1px solid var(--line)}
 </style>
 </head>
@@ -99,6 +114,19 @@ body{background:var(--bg);color:var(--ink);font-family:-apple-system,"PingFang S
   <div class="publish-row">
     <button class="btn-pub" id="pubBtn" onclick="publish()">📮 发布文章</button>
     <span class="msg" id="msg"></span>
+  </div>
+
+  <div class="manage" id="manageBox">
+    <div class="manage-head">
+      <span class="manage-title">文章管理</span>
+      <button class="btn-tool" onclick="loadPosts()">🔄 刷新列表</button>
+    </div>
+    <div class="manage-list" id="postList">
+      <div class="manage-empty">加载中…</div>
+    </div>
+    <div class="manage-pwd-row">
+      <input class="input pwd" id="delPassword" type="password" placeholder="输入发布密码后点删除" maxlength="20">
+    </div>
   </div>
 
   <div class="foot">老张随笔 · 在线写作 · 发布即上线</div>
@@ -191,6 +219,69 @@ function showMsg(t, cls){
   m.textContent = t;
   m.className = 'msg ' + cls;
 }
+
+// ===== 文章管理：列表 + 删除 =====
+async function loadPosts(){
+  const list = document.getElementById('postList');
+  list.innerHTML = '<div class="manage-empty">加载中…</div>';
+  try{
+    const resp = await fetch('https://proxy.hellohopo.dpdns.org/list', {cache:'no-store'});
+    const data = await resp.json();
+    if(!data.ok || !data.posts.length){
+      list.innerHTML = '<div class="manage-empty">暂无文章</div>';
+      return;
+    }
+    list.innerHTML = data.posts.map(p => {
+      const cat = detectCat(p.name);
+      const catCls = cat === '投资随笔' ? 'inv' : 'life';
+      return `<div class="manage-item">
+        <span class="mi-date">${p.date || ''}</span>
+        <span class="mi-title">${escHtml(p.title)}</span>
+        <span class="mi-cat ${catCls}">${cat}</span>
+        <button class="btn-del" onclick="deletePost('${escHtml(p.name)}')">🗑️ 删除</button>
+      </div>`;
+    }).join('');
+  }catch(e){
+    list.innerHTML = '<div class="manage-empty">列表加载失败: ' + e.message + '</div>';
+  }
+}
+
+// 分类检测（与文件名关键词匹配，和 build.py 一致）
+function detectCat(name){
+  return /投资|股票|基金|ETF|银行|持仓|策略|市场|估值|分红|港股|美股|A股|红利/.test(name) ? '投资随笔' : '生活记录';
+}
+function escHtml(s){
+  return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function deletePost(name){
+  const password = document.getElementById('delPassword').value.trim();
+  if(!password){
+    alert('请先在下方输入发布密码');
+    return;
+  }
+  if(!confirm(`确定删除《${name}》？\n删除后不可恢复（git 历史除外）`)) return;
+  try{
+    const resp = await fetch('https://proxy.hellohopo.dpdns.org/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, password })
+    });
+    const data = await resp.json();
+    if(resp.ok && data.ok){
+      alert('✅ 已删除，页面自动重建中…');
+      document.getElementById('delPassword').value = '';
+      loadPosts();
+    }else{
+      alert('❌ ' + (data.error || '删除失败'));
+    }
+  }catch(e){
+    alert('❌ 网络错误: ' + e.message);
+  }
+}
+
+// 页面加载时自动拉取文章列表
+loadPosts();
 </script>
 </body>
 </html>
