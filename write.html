@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>写文章 · 老张随笔</title>
+<style>
+:root{--bg:#f6f8fa;--card:#fff;--ink:#1a1a1a;--sub:#6b7280;--line:#e5e7eb;--accent:#2563eb;--accent2:#1d4ed8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;line-height:1.8}
+.wrap{max-width:960px;margin:0 auto;padding:24px 20px 60px}
+.head{display:flex;align-items:center;justify-content:space-between;padding:14px 0 18px;border-bottom:1px solid var(--line);margin-bottom:24px}
+.site{font-size:19px;font-weight:600}
+.back{font-size:13px;color:var(--sub);text-decoration:none}
+.back:hover{color:var(--accent)}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;color:var(--sub);margin-bottom:6px;font-weight:500}
+.input{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:15px;font-family:inherit;background:var(--card);color:var(--ink)}
+.input:focus{outline:none;border-color:var(--accent)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.btn-tool{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 14px;font-size:13px;cursor:pointer;transition:all .15s}
+.btn-tool:hover{border-color:var(--accent);color:var(--accent)}
+.btn-tool:active{background:#eef4fb}
+.editor-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:720px){.editor-grid{grid-template-columns:1fr}}
+.editor-box{display:flex;flex-direction:column}
+.editor-box textarea{flex:1;min-height:420px;border:1px solid var(--line);border-radius:10px;padding:14px;font-size:14px;font-family:Consolas,"Courier New",monospace;resize:vertical;background:var(--card);color:var(--ink);line-height:1.9}
+.editor-box textarea:focus{outline:none;border-color:var(--accent)}
+.preview{flex:1;min-height:420px;border:1px solid var(--line);border-radius:10px;padding:14px 18px;background:var(--card);overflow:auto;font-size:14px}
+.preview h2{border-left:4px solid var(--accent);padding-left:8px;margin:14px 0 8px;font-size:16px}
+.preview h3{font-size:15px;margin:12px 0 6px}
+.preview p{margin:8px 0}
+.preview ul,.preview ol{margin:8px 0 8px 22px}
+.preview strong{font-weight:600}
+.preview blockquote{border-left:4px solid var(--accent);background:#eef4fb;padding:8px 12px;margin:10px 0;border-radius:0 8px 8px 0;color:#33475b}
+.preview .ph{color:#b3b9c0;text-align:center;padding-top:160px;font-size:13px}
+.form-row{display:flex;gap:12px;flex-wrap:wrap}
+.form-row .field{flex:1;min-width:200px}
+.publish-row{display:flex;gap:12px;align-items:center;margin-top:20px;flex-wrap:wrap}
+.btn-pub{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:12px 36px;font-size:15px;font-weight:500;cursor:pointer;transition:background .15s}
+.btn-pub:hover{background:var(--accent2)}
+.btn-pub:disabled{background:#93c5fd;cursor:not-allowed}
+.pwd{width:180px}
+.msg{font-size:13px;margin-left:8px}
+.msg.ok{color:#16a34a}.msg.err{color:#dc2626}
+.foot{text-align:center;color:var(--sub);font-size:12px;margin-top:40px;padding-top:20px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div>
+      <div class="site">老张随笔 · 写文章</div>
+    </div>
+    <a class="back" href="index.html">← 返回首页</a>
+  </div>
+
+  <div class="field">
+    <label>文章标题</label>
+    <input class="input" id="title" placeholder="输入标题，如：为什么我长期看好银行股" maxlength="60">
+  </div>
+
+  <div class="form-row">
+    <div class="field">
+      <label>分类</label>
+      <select class="input" id="category">
+        <option value="投资随笔">投资随笔</option>
+        <option value="生活记录">生活记录</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>发布密码</label>
+      <input class="input pwd" id="password" type="password" placeholder="发布密码" maxlength="20">
+    </div>
+  </div>
+
+  <div class="field">
+    <label>正文（按钮插入格式，右侧实时预览）</label>
+    <div class="toolbar">
+      <button class="btn-tool" onclick="insertMd('## ','')">H2 小标题</button>
+      <button class="btn-tool" onclick="wrapSel('**','**')">加粗</button>
+      <button class="btn-tool" onclick="wrapSel('*','*')">斜体</button>
+      <button class="btn-tool" onclick="insertMd('- ','')">• 列表</button>
+      <button class="btn-tool" onclick="insertMd('1. ','')">1. 编号</button>
+      <button class="btn-tool" onclick="insertMd('> ','')">引用</button>
+      <button class="btn-tool" onclick="insertMd('\n\n---\n\n','')">分隔线</button>
+      <button class="btn-tool" onclick="insertMd('**','**')">强调</button>
+    </div>
+    <div class="editor-grid">
+      <div class="editor-box">
+        <textarea id="content" placeholder="在这里写文章…&#10;&#10;可以点上方按钮插入格式，也可以直接写（每段一个空行分隔）"></textarea>
+      </div>
+      <div class="editor-box">
+        <div class="preview" id="preview"><div class="ph">👆 实时预览</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="publish-row">
+    <button class="btn-pub" id="pubBtn" onclick="publish()">📮 发布文章</button>
+    <span class="msg" id="msg"></span>
+  </div>
+
+  <div class="foot">老张随笔 · 在线写作 · 发布即上线</div>
+</div>
+
+<script>
+const ta = document.getElementById('content');
+const preview = document.getElementById('preview');
+
+// —— Markdown 实时预览（轻量解析，够用即可）——
+function mdToHtml(md){
+  let html = md.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  html = html.replace(/^### (.*)$/gm, '<h3>$1</h3>');
+  html = html.replace(/^## (.*)$/gm, '<h2>$1</h2>');
+  html = html.replace(/^# (.*)$/gm, '<h1>$1</h1>');
+  html = html.replace(/^\*\*(.+?)\*\*$/gm, '<p><strong>$1</strong></p>');
+  html = html.replace(/^> (.*)$/gm, '<blockquote>$1</blockquote>');
+  html = html.replace(/^[-*] (.*)$/gm, '<li>$1</li>');
+  html = html.replace(/^\d+\. (.*)$/gm, '<li>$1</li>');
+  html = html.replace(/(<li>.*<\/li>)/gs, m => '<ul>' + m + '</ul>');
+  html = html.replace(/^---$/gm, '<hr>');
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  // 段落
+  const blocks = html.split(/\n{2,}/);
+  html = blocks.map(b => {
+    if (/^(<h[123]>|<ul>|<ol>|<blockquote>|<hr>)/.test(b.trim())) return b;
+    if (/^(<li>)/.test(b.trim())) return '<ul>' + b + '</ul>';
+    return '<p>' + b.replace(/\n/g, '<br>') + '</p>';
+  }).join('\n');
+  return html;
+}
+ta.addEventListener('input', () => {
+  preview.innerHTML = ta.value.trim() ? mdToHtml(ta.value) : '<div class="ph">👆 实时预览</div>';
+});
+
+// —— 按钮式编辑 ——
+function insertMd(before, after){
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  ta.value = ta.value.slice(0, s) + before + ta.value.slice(s, e) + after + ta.value.slice(e);
+  ta.focus();
+  const pos = s + before.length;
+  ta.setSelectionRange(pos, pos + (e - s));
+  ta.dispatchEvent(new Event('input'));
+}
+function wrapSel(before, after){
+  insertMd(before, after);
+}
+
+// —— 发布 ——
+async function publish(){
+  const title = document.getElementById('title').value.trim();
+  const category = document.getElementById('category').value;
+  const password = document.getElementById('password').value.trim();
+  const content = ta.value.trim();
+  const msg = document.getElementById('msg');
+  const btn = document.getElementById('pubBtn');
+
+  if(!title){ showMsg('请填写标题', 'err'); return; }
+  if(!content){ showMsg('请填写正文', 'err'); return; }
+  if(!password){ showMsg('请输入发布密码', 'err'); return; }
+
+  btn.disabled = true;
+  showMsg('发布中…', '');
+
+  try{
+    // 构造 Markdown（标题作为 # 一级标题）
+    const md = '# ' + title + '\n\n' + content;
+    const resp = await fetch('https://proxy.hellohopo.dpdns.org/write', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, category, password, content: md })
+    });
+    const data = await resp.json().catch(() => ({}));
+    if(resp.ok && data.ok){
+      showMsg('✅ 发布成功！页面自动构建中，1-2 分钟后可看', 'ok');
+      document.getElementById('title').value = '';
+      ta.value = '';
+      preview.innerHTML = '<div class="ph">👆 实时预览</div>';
+    }else{
+      showMsg('❌ ' + (data.error || '发布失败（HTTP ' + resp.status + '）'), 'err');
+    }
+  }catch(e){
+    showMsg('❌ 网络错误: ' + e.message, 'err');
+  }
+  btn.disabled = false;
+}
+function showMsg(t, cls){
+  const m = document.getElementById('msg');
+  m.textContent = t;
+  m.className = 'msg ' + cls;
+}
+</script>
+</body>
+</html>
