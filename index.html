@@ -15,6 +15,9 @@ body{background:var(--bg);color:var(--ink);font-family:-apple-system,"PingFang S
 .sub{font-size:13px;color:var(--sub);margin-top:2px}
 .back{font-size:13px;color:var(--sub);text-decoration:none}
 .back:hover{color:var(--accent)}
+.head-links{display:flex;gap:14px;align-items:center}
+.write-btn{background:var(--accent);color:#fff;border-radius:8px;padding:5px 14px;font-size:13px;transition:background .15s}
+.write-btn:hover{background:#1d4ed8;color:#fff}
 .list{display:flex;flex-direction:column;gap:14px}
 .item{display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;text-decoration:none;color:var(--ink);transition:transform .12s,box-shadow .12s}
 .item:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.06)}
@@ -37,7 +40,10 @@ body{background:var(--bg);color:var(--ink);font-family:-apple-system,"PingFang S
       <div class="site">老张随笔</div>
       <div class="sub">投资思考 · 生活记录 · 老张的碎碎念</div>
     </div>
-    <a class="back" href="https://hellohopo.dpdns.org/">工具箱 →</a>
+    <div class="head-links">
+      <a class="back write-btn" href="write.html">✍️ 写文章</a>
+      <a class="back" href="https://hellohopo.dpdns.org/">工具箱 →</a>
+    </div>
   </div>
   <div class="list">
 <a class="item" href="posts_html/为什么我长期看好银行股-从招商银行的五年持仓说起.html">
