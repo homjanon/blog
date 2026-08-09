@@ -1,0 +1,44 @@
+name: Blog Auto Build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'posts/**'
+      - 'build.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install mammoth markdown python-docx
+
+      - name: Build blog
+        run: python build.py
+
+      - name: Commit generated HTML
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html posts_html/
+          if git diff --cached --quiet; then
+            echo "no changes to commit"
+          else
+            git commit -m "build: 自动生成博客页面 [skip ci]"
+            git push
+          fi
