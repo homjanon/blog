@@ -2,12 +2,12 @@
 
 投资思考 · 生活记录 · 老张的碎碎念
 
-> 站点：**https://blog.hellohopo.dpdns.org**（GitHub Pages）
+> 站点：**https://blog.x.org**（GitHub Pages）
 
 ## 写作方式（两种任选）
 
 ### ① 网页在线编辑器（推荐，手机/电脑都能写）
-打开 **https://blog.hellohopo.dpdns.org/write.html**：
+打开 **https://blog.x.org/write.html**：
 - 按钮式编辑：加粗 / 小标题 / 列表 一键插入
 - 右侧实时预览
 - 填标题 + 选分类 + 发布密码 → 点「发布」即上线
