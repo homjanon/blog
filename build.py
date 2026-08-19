@@ -107,9 +107,9 @@ def parse_docx(path):
         return result.value  # html 字符串
 
 
-def parse_md(path):
+def parse_md(text):
+    """md 文本 → HTML（调用方已负责读取文件并剥离一级标题）"""
     import markdown
-    text = path.read_text(encoding='utf-8')
     md = markdown.Markdown(extensions=['extra', 'sane_lists', 'tables'])
     return md.convert(text)
 
