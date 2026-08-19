@@ -136,13 +136,17 @@ def build_article(filename):
         html_body = parse_docx(path)
         title = extract_title_docx(path)
     elif path.suffix.lower() in ('.md', '.markdown'):
-        html_body = parse_md(path)
-        title = filename[:filename.rfind('.')]
-        # 尝试从 md 提取 # 标题（跳过开头的 HTML 注释，如 <!-- category: xxx -->）
+        # 先读原文：提取 # 一级标题作为页面标题，并把它从正文剥离
+        # （否则正文 + 页面模板会渲染两个标题，2026-08-19 修复）
         text = path.read_text(encoding='utf-8')
         m = re.search(r'^#\s+(.+)$', text, re.M)
         if m:
             title = m.group(1).strip()
+            # 剥离一级标题行（含紧随的空行），标题由页面模板统一渲染
+            text = text.replace(m.group(0) + chr(10), '', 1)
+        else:
+            title = filename[:filename.rfind('.')]
+        html_body = parse_md(text)
     else:
         return None
 
